@@ -111,3 +111,13 @@ def extract_md_links(text: str) -> list[(str,)]:
     # "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
     res = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return res
+
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    node = TextNode(text, TextType.NORMAL)
+    nodes = split_nodes_delim([node], "**", TextType.BOLD)
+    nodes = split_nodes_delim(nodes, "_", TextType.ITALIC)
+    nodes = split_nodes_delim(nodes, "`", TextType.CODE)
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_image(nodes)
+    return nodes

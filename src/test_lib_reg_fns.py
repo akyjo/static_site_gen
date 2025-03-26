@@ -1,6 +1,13 @@
 import unittest
 
-from lib import extract_md_images, extract_md_links, split_nodes_link, split_nodes_image
+from lib import (
+    extract_md_images,
+    extract_md_links,
+    split_nodes_link,
+    split_nodes_image,
+    split_nodes_delim,
+    text_to_textnodes,
+)
 from textnode import TextNode, TextType
 
 
@@ -119,3 +126,48 @@ class TestLibRegFns(unittest.TestCase):
             ],
             new_nodes,
         )
+
+    def test_all_splits(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        node = TextNode(text, TextType.NORMAL)
+        nodes = split_nodes_delim([node], "**", TextType.BOLD)
+        nodes = split_nodes_delim(nodes, "_", TextType.ITALIC)
+        nodes = split_nodes_delim(nodes, "`", TextType.CODE)
+        nodes = split_nodes_image(nodes)
+        nodes = split_nodes_link(nodes)
+        should_be = [
+            TextNode("This is ", TextType.NORMAL),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.NORMAL),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.NORMAL),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.NORMAL),
+            TextNode(
+                "obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"
+            ),
+            TextNode(" and a ", TextType.NORMAL),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+
+        self.assertListEqual(nodes, should_be)
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        nodes = text_to_textnodes(text)
+
+        should_be = [
+            TextNode("This is ", TextType.NORMAL),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.NORMAL),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.NORMAL),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.NORMAL),
+            TextNode(
+                "obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"
+            ),
+            TextNode(" and a ", TextType.NORMAL),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+        ]
+        self.assertListEqual(nodes, should_be)
