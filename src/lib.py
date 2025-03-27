@@ -1,10 +1,11 @@
 import re
-from htmlnode import LeafNode
+from htmlnode import LeafNode, HTMLNode
 
 from textnode import TextType, TextNode
+from block import block_to_block_type
 
 
-def text_node_to_html_node(text_node: TextType) -> LeafNode:
+def text_node_to_html_node(text_node: TextNode) -> LeafNode:
     match text_node.text_type:
         case TextType.NORMAL:
             return LeafNode(None, text_node.text)
@@ -127,3 +128,26 @@ def markdown_to_blocks(text: str) -> list[str]:
     blocks = [s.strip() for s in text.split("\n\n")]
     blocks = list(filter(lambda x: len(x) > 0, blocks))
     return blocks
+
+
+def block_to_inline_HTML(block: str) -> list[HTMLNode]:
+    block_type = block_to_block_type(block)
+    match block_type:
+        case block_type.PARAGRAPH:
+            ...
+        case block_type.HEADING:
+            ...
+        case block_type.UNORDERED_LIST:
+            ...
+        case block_type.ORDERED_LIST:
+            ...
+        case block_type.QUOTE:
+            ...
+        case block_type.CODE:
+            ...
+
+
+def markdown_to_html_node(md):
+    for block in markdown_to_blocks(md):
+        # create proper nodes based on block type
+        ...
