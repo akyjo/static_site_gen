@@ -1,8 +1,8 @@
 import re
-from htmlnode import LeafNode, HTMLNode
+from htmlnode import LeafNode, HTMLNode, ParentNode
 
 from textnode import TextType, TextNode
-from block import block_to_block_type
+from block import block_to_block_type, BlockType
 
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
@@ -130,24 +130,31 @@ def markdown_to_blocks(text: str) -> list[str]:
     return blocks
 
 
-def block_to_inline_HTML(block: str) -> list[HTMLNode]:
+def block_to_node(block: str) -> HTMLNode:
     block_type = block_to_block_type(block)
     match block_type:
-        case block_type.PARAGRAPH:
+        case BlockType.PARAGRAPH:
+            return ParentNode("p", [LeafNode(None, block)])
+            # return ParentNode("p", text_to_inline(block))
+        case BlockType.HEADING:
             ...
-        case block_type.HEADING:
+        case BlockType.UNORDERED_LIST:
             ...
-        case block_type.UNORDERED_LIST:
+        case BlockType.ORDERED_LIST:
             ...
-        case block_type.ORDERED_LIST:
+        case BlockType.QUOTE:
             ...
-        case block_type.QUOTE:
-            ...
-        case block_type.CODE:
+        case BlockType.CODE:
             ...
 
 
 def markdown_to_html_node(md):
+    topmost_div = ParentNode("div", [])
     for block in markdown_to_blocks(md):
         # create proper nodes based on block type
-        ...
+        topmost_div.children.append(block_to_node(block))
+
+    return topmost_div
+
+
+# def text_to_inline
